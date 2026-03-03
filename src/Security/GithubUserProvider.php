@@ -3,41 +3,36 @@
 namespace App\Security;
 
 use App\Entity\User;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
-use Symfony\Component\Config\Exception\LogicException;
-use Symfony\Component\HttpClient\HttpClient;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class GithubUserProvider implements UserProviderInterface
 {
-    private HttpClientInterface $client;
-    private SerializerInterface $serializer;
+    public function __construct(
+        private HttpClientInterface $client,
+        private SerializerInterface $serializer
+    ) {}
 
-    public function __construct(HttpClientInterface $client, SerializerInterface $serializer)
+    public function loadUserByIdentifier(string $identifier): UserInterface
     {
-        $this->client = $client;
-        $this->serializer = $serializer;
-    }
+        $response = $this->client->request('GET', 'https://api.github.com/user', [
+            'headers' => [
+                'Authorization' => 'token ' . $identifier,
+                'Accept'        => 'application/vnd.github+json',
+            ]
+        ]);
 
-    /**
-     * @throws GuzzleException
-     */
-    public function loadUserByUsername(string $username): User
-    {
-        $response = $this->client->request('get', 'https://api.github.com/user?access_token='.$username);
-        // $response = $this->client->get('https://api.github.com/user?access_token='.$username);
-        // $result = $response->getBody()->getContents();
-        $result = $response->getContent();
-
-        $userData = $this->serializer->deserialize($result, 'array', 'json');
+        $userData = $this->serializer->deserialize(
+            $response->getContent(),
+            'array',
+            'json'
+        );
 
         if (!$userData) {
-            throw new LogicException('Did not managed to get your user info from Github.');
+            throw new \LogicException('Did not managed to get your user info from Github.');
         }
 
         return new User(
@@ -51,21 +46,14 @@ class GithubUserProvider implements UserProviderInterface
 
     public function refreshUser(UserInterface $user): UserInterface
     {
-        $class = get_class($user);
-        if (!$this->supportsClass($class)) {
+        if (!$this->supportsClass(get_class($user))) {
             throw new UnsupportedUserException();
         }
         return $user;
     }
 
-    public function supportsClass($class): bool
+    public function supportsClass(string $class): bool
     {
-        return 'App\Entity\User' === $class;
-    }
-
-
-    public function loadUserByIdentifier(string $identifier): UserInterface
-    {
-        return new User('dDupont', 'dupont', 'ddupont@test.fr','avatarUrl','profilHtmlUrl');
+        return User::class === $class || is_subclass_of($class, User::class);
     }
 }

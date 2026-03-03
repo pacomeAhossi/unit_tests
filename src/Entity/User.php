@@ -87,6 +87,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->email;
     }
 
+    
+
     /**
      * @see UserInterface
      */
@@ -136,11 +138,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * Get the value of username
-     */ 
-    public function getUsername()
-    {
-        return $this->username;
+     * Méthode getUsername qui permet de retourner le champ qui est utilisé pour l'authentification.
+     *
+     * @return string
+     */
+    public function getUsername(): string {
+        return explode('@', $this->getUserIdentifier())[0] ;
     }
 
     /**
