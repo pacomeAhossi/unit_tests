@@ -30,10 +30,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
 
     #[ORM\Column(length: 180)]
-    private ?string $avatarUrl = null;
+    private ?string $avatar_url = null;
 
     #[ORM\Column(length: 180)]
-    private ?string $profileHtmlUrl = null;
+    private ?string $html_url = null;
 
     /**
      * @var list<string> The user roles
@@ -50,13 +50,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $foodRecords;
 
     
-    public function __construct($username, $fullname, $email, $avatarUrl, $profileHtmlUrl)
+    public function __construct($username, $fullname, $email, $avatar_url, $html_url)
     {
         $this->username = $username;
         $this->fullname = $fullname;
         $this->email = $email;
-        $this->avatarUrl = $avatarUrl;
-        $this->profileHtmlUrl = $profileHtmlUrl;
+        $this->avatar_url = $avatar_url;
+        $this->html_url = $html_url;
         $this->foodRecords = new ArrayCollection();
     }
     
@@ -183,7 +183,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */ 
     public function getAvatarUrl()
     {
-        return $this->avatarUrl;
+        return $this->avatar_url;
     }
 
     /**
@@ -191,9 +191,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @return  self
      */ 
-    public function setAvatarUrl($avatarUrl)
+    public function setAvatarUrl($avatar_url)
     {
-        $this->avatarUrl = $avatarUrl;
+        $this->avatar_url = $avatar_url;
 
         return $this;
     }
@@ -203,7 +203,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */ 
     public function getProfileHtmlUrl()
     {
-        return $this->profileHtmlUrl;
+        return $this->html_url;
     }
 
     /**
@@ -211,9 +211,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @return  self
      */ 
-    public function setProfileHtmlUrl($profileHtmlUrl)
+    public function setProfileHtmlUrl($html_url)
     {
-        $this->profileHtmlUrl = $profileHtmlUrl;
+        $this->html_url = $html_url;
 
         return $this;
     }
